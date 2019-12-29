@@ -3,6 +3,7 @@
 int open_listen__sock(int port);
 //用于http事务处理
 void http_trans(int fd);
+int is_static(char *uri);
 int main()
 {
 	return 0;
