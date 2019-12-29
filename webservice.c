@@ -3,6 +3,7 @@
 int open_listen__sock(int port);
 //用于http事务处理
 void http_trans(int fd);
+//判断该请求是否为静态页面请求
 int is_static(char *uri);
 int main()
 {
