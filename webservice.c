@@ -13,6 +13,7 @@ void analyze_dynamic_uri(char *uri,char *filename,char *args);
 void service_static(int fd,char *filename,int filesize);
 //服务动态内容
 void service_dynamic(int fd,char *filename,char *args);
+void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 int main()
 {
 	return 0;
