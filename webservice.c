@@ -9,7 +9,9 @@ int is_static(char *uri);
 void analyze_static_uri(char *uri,char *filename);
 //解析动态请求uri，第三个参数是请求的参数
 void analyze_dynamic_uri(char *uri,char *filename,char *args);
+//服务静态内容
 void service_static(int fd,char *filename,int filesize);
+void service_dynamic(int fd,char *filename,char *args);
 int main()
 {
 	return 0;
