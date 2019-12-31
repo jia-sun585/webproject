@@ -5,6 +5,7 @@ int open_listen__sock(int port);
 void http_trans(int fd);
 //判断该请求是否为静态页面请求
 int is_static(char *uri);
+void analyze_static_uri(char *uri,char *filename);
 int main()
 {
 	return 0;
