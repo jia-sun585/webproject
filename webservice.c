@@ -7,7 +7,8 @@ void http_trans(int fd);
 int is_static(char *uri);
 //解析静态内容请求uri
 void analyze_static_uri(char *uri,char *filename);
-void analyze_dynamic_uri(char *uri,char *filename,char *arg);
+//解析动态请求uri，第三个参数是请求的参数
+void analyze_dynamic_uri(char *uri,char *filename,char *args);
 int main()
 {
 	return 0;
