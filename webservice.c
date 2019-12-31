@@ -11,6 +11,7 @@ void analyze_static_uri(char *uri,char *filename);
 void analyze_dynamic_uri(char *uri,char *filename,char *args);
 //服务静态内容
 void service_static(int fd,char *filename,int filesize);
+//服务动态内容
 void service_dynamic(int fd,char *filename,char *args);
 int main()
 {
