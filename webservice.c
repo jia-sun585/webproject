@@ -15,6 +15,7 @@ void service_static(int fd,char *filename,int filesize);
 void service_dynamic(int fd,char *filename,char *args);
 //处理错误请求，返回错误提示页面
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
+//判断静态请求文件的类型
 void getfiletype(char *filename,char *filetype);
 int main()
 {
