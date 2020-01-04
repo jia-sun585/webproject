@@ -21,3 +21,12 @@ int main()
 {
 	return 0;
 }
+int open_listen__sock(int port)
+{
+int listen_sock,optval=1;
+struct sockaddr_in serveraddr;
+//创建套接字
+if((listen_sock=socket(AF_INET,SOCK_STREAM,0))<0)
+    return -1;
+
+}
