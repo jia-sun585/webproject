@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <netinet/in.h>
 //open_listen_sock辅助函数，用于监听等待服务端的请求，返回一个监听描述符
 int open_listen_sock(int port);
 //用于http事务处理
