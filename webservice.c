@@ -49,5 +49,6 @@ return listen_sock;
 }
 int is_static(char *uri)
 {
-
+if(!strstr(uri,"cgi-bin"))
+    return 1;
 }
