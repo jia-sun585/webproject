@@ -47,3 +47,7 @@ if(listen(listen_sock,LISTENQ)<0)
     return -1;
 return listen_sock;
 }
+int is_static(char *uri)
+{
+
+}
