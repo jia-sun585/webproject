@@ -42,4 +42,7 @@ serveraddr.sin_port=htoms((unsigned short)port);
 //绑定套接字
 if(bind(listen_sock,(SA *)&serveraddr,sizeof(serveraddr))<0)
     return -1;
+//监听套接字
+if(listen(listen_sock,LISTENQ)<0)
+    return -1;
 }
