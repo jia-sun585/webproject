@@ -45,4 +45,5 @@ if(bind(listen_sock,(SA *)&serveraddr,sizeof(serveraddr))<0)
 //监听套接字
 if(listen(listen_sock,LISTENQ)<0)
     return -1;
+return listen_sock;
 }
