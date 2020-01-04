@@ -1,6 +1,6 @@
 #include <stdio.h>
 //open_listen_sock辅助函数，用于监听等待服务端的请求，返回一个监听描述符
-int open_listen__sock(int port);
+int open_listen_sock(int port);
 //用于http事务处理
 void http_trans(int fd);
 //判断该请求是否为静态页面请求
