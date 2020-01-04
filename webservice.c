@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <string.h>
 //open_listen_sock辅助函数，用于监听等待服务端的请求，返回一个监听描述符
 int open_listen_sock(int port);
 //用于http事务处理
@@ -30,6 +31,11 @@ struct sockaddr_in serveraddr;
 //创建套接字
 if((listen_sock=socket(AF_INET,SOCK_STREAM,0))<0)
     return -1;
-
+if(setsockopt(listen_sock,SOL_SOCKET,SO_REUSEADDR,(const void*)&optval,sizeof(int))<0)
+    return -1;
+bzero((char*)&serveraddr,sizeof(serveraddr));
+serveraddr.sin_family=AF_INET;
+serveraddr.sin_addr.s_addr=htonl(INADDR_ANY);
+serveraddr.sin_port=htoms((unsigned short)port);
 
 }
