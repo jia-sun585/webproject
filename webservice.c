@@ -66,7 +66,7 @@ if(setsockopt(listen_sock,SOL_SOCKET,SO_REUSEADDR,(const void*)&optval,sizeof(in
 bzero((char*)&serveraddr,sizeof(serveraddr));
 serveraddr.sin_family=AF_INET;
 serveraddr.sin_addr.s_addr=htonl(INADDR_ANY);
-serveraddr.sin_port=htoms((unsigned short)port);
+serveraddr.sin_port=htons((unsigned short)port);
 //绑定套接字
 if(bind(listen_sock,(SA *)&serveraddr,sizeof(serveraddr))<0)
     return -1;
