@@ -73,5 +73,7 @@ rio_writen(fa,body,strlen(body));
 }
 void getfiletype(char *filename,char *filetype)
 {
+if(strstr(filename,".html"))
+    strcpy(filetype,"text/html");
 
 }
