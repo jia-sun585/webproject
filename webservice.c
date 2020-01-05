@@ -105,6 +105,11 @@ void service_static(int fd,char *filename,int filesize)
     sprintf(buf,"%sContent-type:%s\r\n\r\n",buf,filetype);
     rio_writen(fd,buf,strlen(buf));
     srcfd=open(filename,O_RDONLY,0);
+    srcp=mmap(0,filesize,PROT_READ,MAP_PRIVATE,srcfd,0);
+    close(srcfd);
+    rio_writen(fd,srcp,filesize);
+    munmap(srcp,filesize);
+
 
 
 }
