@@ -75,7 +75,8 @@ void getfiletype(char *filename,char *filetype)
 {
 if(strstr(filename,".html"))
     strcpy(filetype,"text/html");
-if(strstr(filename,".jpg"))
+else if(strstr(filename,".jpg"))
     strcpy(filetype,"image/jpeg");
-
+else if(strstr(filename,".mpeg"))
+    strcpy(filetype,"video/mpeg");
 }
