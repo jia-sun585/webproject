@@ -35,6 +35,7 @@ int main(int argc,char *argv[])
         return 0;
     }
     port=atoi(argv[1]);
+    listen_sock=open_listen_sock(port);
 
 	return 0;
 }
