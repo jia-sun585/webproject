@@ -139,6 +139,17 @@ void http_trans(int fd)
     char filename[8192], cgiargs[8192];
     rio_t rio;
 
+    /*读取请求头*/
+    rio_readinitb(&rio, fd);
+    rio_readlineb(&rio, buf, 8192);
+    sscanf(buf, "%s %s %s", method, uri, version);
+
+    /*判断提交方法*/
+    if(strcasecmp(method, "GET")) {
+        error_request(fd, method, "501", "Not Implemented", "webserver does not implement this method");
+        return ;
+    }
+
 
 
 }
