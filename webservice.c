@@ -102,7 +102,7 @@ void analyze_dynamic_uri(char *uri,char *filename,char *args)
 
 void service_dynamic(int fd,char *filename,char *args)
 {
-    char buf[1024], *emptylist[] = {NULL};
+    char buf[8192], *emptylist[] = {NULL};
     int pfd[2];
 
     /*返回http响应头部*/
