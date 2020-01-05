@@ -71,3 +71,7 @@ sprintf(buf,"Content-length:%d\r\n\r\n",(int)strlen(body));
 rio_writen(fd,buf,strlen(buf));
 rio_writen(fa,body,strlen(body));
 }
+void getfiletype(char *filename,char *filetype)
+{
+
+}
