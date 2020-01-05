@@ -145,7 +145,7 @@ void http_trans(int fd)
     sscanf(buf, "%s %s %s", method, uri, version);
 
     /*判断提交方法*/
-    if(strcasecmp(method, "GET")) {
+    if(strcasecmp(method, "GET") && strcasecmp(method, "POST")) {
         error_request(fd, method, "501", "Not Implemented", "webserver does not implement this method");
         return ;
     }
