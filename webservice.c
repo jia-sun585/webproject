@@ -129,3 +129,16 @@ void service_dynamic(int fd,char *filename,char *args)
     close(pfd[1]);
 
 }
+
+
+void http_trans(int fd)
+{
+    int static_flag;
+    struct stat sbuf;
+    char buf[8192], method[8192], uri[8192], version[8192];
+    char filename[8192], cgiargs[8192];
+    rio_t rio;
+
+
+
+}
