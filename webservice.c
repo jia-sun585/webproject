@@ -104,6 +104,7 @@ void service_static(int fd,char *filename,int filesize)
     sprintf(buf,"%sContent-length:%d\r\n",buf,filesize);
     sprintf(buf,"%sContent-type:%s\r\n\r\n",buf,filetype);
     rio_writen(fd,buf,strlen(buf));
+    //发送响应体
     srcfd=open(filename,O_RDONLY,0);
     srcp=mmap(0,filesize,PROT_READ,MAP_PRIVATE,srcfd,0);
     close(srcfd);
