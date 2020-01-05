@@ -105,23 +105,26 @@ void service_dynamic(int fd,char *filename,char *args)
     char buf[1024], *emptylist[] = {NULL};
     int pfd[2];
 
-    /**/
+    /*返回http响应头部*/
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
     rio_writen(fd, buf, strlen(buf));
     sprintf(buf, "Server:Web Server\r\n");
     rio_writen(fd, buf, strlen(buf));
 
     pipe(pfd);
+    /*子进程处理*/
     if(fork() == 0) {
         close(pfd[1]);
         dup2(pfd[0], STDIN_FILENO);
+        /*重定向标准输出到客户端*/
         dup2(fd, STDOUT_FILENO);
-        /**/
+        /*运行CGI项目*/
         execve(filename, emptylist, environ);
     }
 
     close(pfd[0]);
     write(pfd[1], args, strlen(args)+1);
+    /*父进程等待cgi子进程结束并回收*/
     wait(NULL);
     close(pfd[1]);
 
