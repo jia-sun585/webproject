@@ -3,6 +3,11 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <netinet/in.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <pthread.h>
+#include <malloc.h>
 #include "rio.h"
 //open_listen_sock辅助函数，用于监听等待服务端的请求，返回一个监听描述符
 int open_listen_sock(int port);
@@ -22,8 +27,27 @@ void service_dynamic(int fd,char *filename,char *args);
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 //判断静态请求文件的类型
 void getfiletype(char *filename,char *filetype);
-int main()
+//服务客户端
+void *serve_cilent(void *vargp);
+int main(int argc,char *argv[])
 {
+    int listen_sock,*conn_sock,port,clientlen;
+    pthread_t tid;
+    struct sockaddr_in clientaddr;
+    if(argc!=2)
+    {
+        fprintf(stderr,"usage:%s<port>\n",argv[0]);
+        return 0;
+    }
+    port=atoi(argv[1]);
+    listen_sock=open_listen_sock(port);
+    while(1)
+    {
+        clientlen=sizeof(clientaddr);
+        conn_sock=malloc(sizeof(int));
+        *conn_sock=accept(listen_sock,(SA *)&clientaddr,&clientlen);
+        pthread_create(&tid,NULL,serve_cilent,conn_sock);
+    }
 	return 0;
 }
 
@@ -184,5 +208,43 @@ void http_trans(int fd)
         }
         service_dynamic(fd, filename, cgiargs);
     }
+}
 
+void analyze_static_uri(char *uri,char *filename)
+{
+    char *ptr;
+    strcpy(filename,".");
+    strcat(filename,uri);
+    //默认访问index.html
+    if(uri[strlen(uri)-1]=='/')
+        strcat(filename,"index.html");
+}
+void service_static(int fd,char *filename,int filesize)
+{
+    int srcfd;
+    char *srcp,filetype[8192],buf[8192];
+    getfiletype(filename,filetype);
+    //发送响应头
+    sprintf(buf,"HTTP/1.0 200 OK\r\n");
+    sprintf(buf,"%sServer:Web server\r\n",buf);
+    sprintf(buf,"%sContent-length:%d\r\n",buf,filesize);
+    sprintf(buf,"%sContent-type:%s\r\n\r\n",buf,filetype);
+    rio_writen(fd,buf,strlen(buf));
+    //发送响应体
+    srcfd=open(filename,O_RDONLY,0);
+    srcp=mmap(0,filesize,PROT_READ,MAP_PRIVATE,srcfd,0);
+    close(srcfd);
+    rio_writen(fd,srcp,filesize);
+    munmap(srcp,filesize);
+
+
+
+}
+void *serve_cilent(void *vargp)
+{
+    int conn_sock=*((int *)vargp);
+    pthread_detach(pthread_self());
+    free(vargp);
+    http_trans(conn_sock);
+    close(conn_sock);
 }
