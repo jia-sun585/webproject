@@ -31,7 +31,7 @@ void getfiletype(char *filename,char *filetype);
 void *serve_cilent(void *vargp);
 int main(int argc,char *argv[])
 {
-    int listen_sock,conn_sock,port,clientlen;
+    int listen_sock,*conn_sock,port,clientlen;
     struct sockaddr_in clientaddr;
     if(argc!=2)
     {
@@ -40,6 +40,10 @@ int main(int argc,char *argv[])
     }
     port=atoi(argv[1]);
     listen_sock=open_listen_sock(port);
+    while(1)
+    {
+        clientlen=sizeof(clientaddr);
+    }
 	return 0;
 }
 int open_listen__sock(int port)
