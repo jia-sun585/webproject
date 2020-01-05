@@ -82,6 +82,7 @@ int is_static(char *uri)
 {
 if(!strstr(uri,"cgi-bin"))
     return 1;
+else return 0;
 }
 
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description)
