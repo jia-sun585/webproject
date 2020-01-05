@@ -129,5 +129,5 @@ void service_static(int fd,char *filename,int filesize)
 void *serve_cilent(void *vargp)
 {
     int conn_sock=*((int *)vargp);
-
+    pthread_detach(pthread_self());
 }
