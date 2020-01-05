@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <netinet/in.h>
+#include "rio.h"
 //open_listen_sock辅助函数，用于监听等待服务端的请求，返回一个监听描述符
 int open_listen_sock(int port);
 //用于http事务处理
@@ -54,5 +55,14 @@ if(!strstr(uri,"cgi-bin"))
 }
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description)
 {
+ char buf[1024],body[1024];
+ //构建http响应
+sprintf(body,"<html><title>error request</title>");
+sprintf(body,"%s<body>\r\n",body);
+sprintf(body,"%s%s:%s\r\n",body,errnum,cue);
+sprintf(body,"%s<p>%s: %s\r\n",body,description,cause);
+sprintf(body,"%s<hr><em>Web server</em>\r\n",body);
+//http响应头
+sprintf(buf,"HTTP/1.0%s%s\r\n",errnum,cue);
 
 }
