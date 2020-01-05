@@ -85,4 +85,5 @@ void analyze_static_uri(char *uri,char *filename)
 {
     char *ptr;
     strcpy(filename,".");
+    strcat(filename,uri);
 }
