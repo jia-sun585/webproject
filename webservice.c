@@ -29,6 +29,12 @@ int main(int argc,char *argv[])
 {
     int listen_sock,conn_sock,port,clientlen;
     struct sockaddr_in clientaddr;
+    if(argc!=2)
+    {
+        fprintf(stderr,"usage:%s<port>\n",argv[0]);
+        return 0;
+    }
+
 	return 0;
 }
 int open_listen__sock(int port)
