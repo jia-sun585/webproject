@@ -132,4 +132,6 @@ void *serve_cilent(void *vargp)
     int conn_sock=*((int *)vargp);
     pthread_detach(pthread_self());
     free(vargp);
+    http_trans(conn_sock);
+    close(conn_sock);
 }
