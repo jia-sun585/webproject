@@ -25,6 +25,7 @@ void service_dynamic(int fd,char *filename,char *args);
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 //判断静态请求文件的类型
 void getfiletype(char *filename,char *filetype);
+void *serve_cilent(void *vargp);
 int main(int argc,char *argv[])
 {
     int listen_sock,conn_sock,port,clientlen;
@@ -36,7 +37,6 @@ int main(int argc,char *argv[])
     }
     port=atoi(argv[1]);
     listen_sock=open_listen_sock(port);
-
 	return 0;
 }
 int open_listen__sock(int port)
