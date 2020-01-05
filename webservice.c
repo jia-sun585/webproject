@@ -25,6 +25,7 @@ void service_dynamic(int fd,char *filename,char *args);
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 //判断静态请求文件的类型
 void getfiletype(char *filename,char *filetype);
+//服务客户端
 void *serve_cilent(void *vargp);
 int main(int argc,char *argv[])
 {
