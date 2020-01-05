@@ -26,6 +26,7 @@ int main()
 {
 	return 0;
 }
+
 int open_listen__sock(int port)
 {
 int listen_sock,optval=1;
@@ -48,11 +49,13 @@ if(listen(listen_sock,LISTENQ)<0)
     return -1;
 return listen_sock;
 }
+
 int is_static(char *uri)
 {
 if(!strstr(uri,"cgi-bin"))
     return 1;
 }
+
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description)
 {
  char buf[1024],body[1024];
@@ -71,6 +74,7 @@ sprintf(buf,"Content-length:%d\r\n\r\n",(int)strlen(body));
 rio_writen(fd,buf,strlen(buf));
 rio_writen(fa,body,strlen(body));
 }
+
 void getfiletype(char *filename,char *filetype)
 {
 if(strstr(filename,".html"))
@@ -81,3 +85,5 @@ else if(strstr(filename,".mpeg"))
     strcpy(filetype,"video/mpeg");
 else strcpy(filetype,"text/html");
 }
+
+
