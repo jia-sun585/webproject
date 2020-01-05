@@ -81,7 +81,8 @@ else if(strstr(filename,".mpeg"))
     strcpy(filetype,"video/mpeg");
 else strcpy(filetype,"text/html");
 }
-void analyze_static_uri(char *uri,char *filename)()
+void analyze_static_uri(char *uri,char *filename)
 {
-
+    char *ptr;
+    strcpy(filename,".");
 }
