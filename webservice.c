@@ -62,7 +62,12 @@ sprintf(body,"%s<body>\r\n",body);
 sprintf(body,"%s%s:%s\r\n",body,errnum,cue);
 sprintf(body,"%s<p>%s: %s\r\n",body,description,cause);
 sprintf(body,"%s<hr><em>Web server</em>\r\n",body);
-//http响应头
+//发送响应
 sprintf(buf,"HTTP/1.0%s%s\r\n",errnum,cue);
-
+rio_writen(fd,buf,strlen(buf));
+sprintf(buf,"Content-type:text/html\r\n");
+rio_writen(fd,buf,strlen(buf));
+sprintf(buf,"Content-length:%d\r\n\r\n",(int)strlen(body));
+rio_writen(fd,buf,strlen(buf));
+rio_writen(fa,body,strlen(body));
 }
