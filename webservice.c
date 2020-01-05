@@ -125,3 +125,7 @@ void service_static(int fd,char *filename,int filesize)
 
 
 }
+void *serve_cilent(void *vargp)
+{
+
+}
