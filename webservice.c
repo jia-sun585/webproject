@@ -34,6 +34,7 @@ int main(int argc,char *argv[])
         fprintf(stderr,"usage:%s<port>\n",argv[0]);
         return 0;
     }
+    port=atoi(argv[1]);
 
 	return 0;
 }
