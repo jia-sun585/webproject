@@ -79,4 +79,5 @@ else if(strstr(filename,".jpg"))
     strcpy(filetype,"image/jpeg");
 else if(strstr(filename,".mpeg"))
     strcpy(filetype,"video/mpeg");
+else strcpy(filetype,"text/html");
 }
