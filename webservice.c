@@ -25,8 +25,10 @@ void service_dynamic(int fd,char *filename,char *args);
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 //判断静态请求文件的类型
 void getfiletype(char *filename,char *filetype);
-int main()
+int main(int argc,char *argv[])
 {
+    int listen_sock,conn_sock,port,clientlen;
+    struct sockaddr_in clientaddr;
 	return 0;
 }
 int open_listen__sock(int port)
