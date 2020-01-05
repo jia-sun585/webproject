@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <pthread.h>
 #include "rio.h"
 //open_listen_sock辅助函数，用于监听等待服务端的请求，返回一个监听描述符
 int open_listen_sock(int port);
@@ -128,4 +129,5 @@ void service_static(int fd,char *filename,int filesize)
 void *serve_cilent(void *vargp)
 {
     int conn_sock=*((int *)vargp);
+
 }
