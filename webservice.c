@@ -95,4 +95,9 @@ void service_static(int fd,char *filename,int filesize)
     int srcfd;
     char *srcp,filetype[8192],buf[8192];
     getfiletype(filename,filetype);
+    sprintf(buf,"HTTP/1.0 200 OK\r\n");
+    sprintf(buf,"%sServer:Web server\r\n",buf);
+    sprintf(buf,"%sContent-length:%d\r\n",buf,filesize);
+    sprintf(buf,"%sContent-type:%s\r\n\r\n",buf,filetype);
+    rio_writen(fd,buf,strlen(buf));
 }
