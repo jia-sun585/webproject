@@ -55,7 +55,7 @@ int main(int argc,char *argv[])
 	return 0;
 }
 
-int open_listen__sock(int port)
+int open_listen_sock(int port)
 {
 int listen_sock,optval=1;
 struct sockaddr_in serveraddr;
