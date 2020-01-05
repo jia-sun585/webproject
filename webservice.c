@@ -153,6 +153,13 @@ void http_trans(int fd)
     /*判断请求的是静态页面还是动态页面*/
     static_flag = is_static(uri);
 
+    /*分析是否有所请求的页面*/
+    if(static_flag)
+        analyze_static_uri(uri, filename);
+    else
+        analyze_dynamic_uri(uri, filename, cgiargs);
+
+
 
 
 }
