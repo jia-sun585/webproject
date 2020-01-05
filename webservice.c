@@ -162,7 +162,7 @@ void http_trans(int fd)
 
     if(stat(filename, &sbuf) < 0) {
         error_request(fd, filename, "404", "Not found",
-                      "webserver could not find this filw");
+                      "webserver could not find this file");
         return ;
     }
 
@@ -173,9 +173,16 @@ void http_trans(int fd)
                           "webserver is not permtted to read the file");
             return ;
         }
-        feed_static(fd, filename, sbuf.st_size);
+        service_static(fd, filename, sbuf.st_size);
     }
-
-
+    /*返回动态页面*/
+    else {
+        if(!(S_ISREG(sbuf.st_mode))||!(S_IRUSR & sbuf.st_mode)) {
+            error_request(fd, filename, "403", "Forbidden",
+                          "webserver could not run the CGI program");
+            return ;
+        }
+        service_dynamic(fd, filename, cgiargs);
+    }
 
 }
