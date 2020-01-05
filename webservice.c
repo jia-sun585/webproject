@@ -92,5 +92,7 @@ void analyze_static_uri(char *uri,char *filename)
 }
 void service_static(int fd,char *filename,int filesize)
 {
-
+    int srcfd;
+    char *srcp,filetype[8192],buf[8192];
+    getfiletype(filename,filetype);
 }
