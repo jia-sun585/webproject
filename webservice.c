@@ -32,6 +32,7 @@ void *serve_cilent(void *vargp);
 int main(int argc,char *argv[])
 {
     int listen_sock,*conn_sock,port,clientlen;
+    pthread_t tid;
     struct sockaddr_in clientaddr;
     if(argc!=2)
     {
@@ -45,6 +46,7 @@ int main(int argc,char *argv[])
         clientlen=sizeof(clientaddr);
         conn_sock=malloc(sizeof(int));
         *conn_sock=accept(listen_sock,(SA *)&clientaddr,&clientlen);
+        pthread_create(&tid,NULL,serve_cilent,conn_sock);
     }
 	return 0;
 }
