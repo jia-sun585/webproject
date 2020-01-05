@@ -86,4 +86,16 @@ else if(strstr(filename,".mpeg"))
 else strcpy(filetype,"text/html");
 }
 
-
+void analyze_dynamic_uri(char *uri,char *filename,char *args)
+{
+    char *ptr;
+    ptr = index(uri, '?');
+    if(ptr) {
+        strcpy(cgiargs, ptr+1);
+        *ptr = '\0';
+    }
+    else
+        strcpy(cgiargs,"");
+    strcpy(filename, ".");
+    strcat(filename, uri);
+}
