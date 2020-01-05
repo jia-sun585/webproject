@@ -44,6 +44,7 @@ int main(int argc,char *argv[])
     {
         clientlen=sizeof(clientaddr);
         conn_sock=malloc(sizeof(int));
+        *conn_sock=accept(listen_sock,(SA *)&clientaddr,&clientlen);
     }
 	return 0;
 }
