@@ -86,6 +86,11 @@ void analyze_static_uri(char *uri,char *filename)
     char *ptr;
     strcpy(filename,".");
     strcat(filename,uri);
+    //默认访问index.html
     if(uri[strlen(uri)-1]=='/')
         strcat(filename,"index.html");
+}
+void service_static(int fd,char *filename,int filesize)
+{
+
 }
