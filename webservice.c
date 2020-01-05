@@ -160,6 +160,22 @@ void http_trans(int fd)
         analyze_dynamic_uri(uri, filename, cgiargs);
 
 
+    if(stat(filename, &sbuf) < 0) {
+        error_request(fd, filename, "404", "Not found",
+                      "webserver could not find this filw");
+        return ;
+    }
+
+    /*返回静态页面*/
+    if(static_flag) {
+        if(!(S_ISREG(sbuf.st_mode))||!(S_IRUSR & sbuf.st_mode)) {
+            error_request(fd, filename, "403", "Forbidden",
+                          "webserver is not permtted to read the file");
+            return ;
+        }
+        feed_static(fd, filename, sbuf.st_size);
+    }
+
 
 
 }
