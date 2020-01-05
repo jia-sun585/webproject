@@ -43,6 +43,7 @@ int main(int argc,char *argv[])
     while(1)
     {
         clientlen=sizeof(clientaddr);
+        conn_sock=malloc(sizeof(int));
     }
 	return 0;
 }
