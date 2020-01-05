@@ -150,6 +150,9 @@ void http_trans(int fd)
         return ;
     }
 
+    /*判断请求的是静态页面还是动态页面*/
+    static_flag = is_static(uri);
+
 
 
 }
