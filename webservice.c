@@ -170,13 +170,10 @@ void service_dynamic_get(int fd,char *filename,char *args,const char *method)
     pipe(pfd);
     /*子进程处理*/
     if(fork() == 0) {
-
         close(pfd[1]);
         dup2(pfd[0], STDIN_FILENO);
         /*重定向标准输出到客户端*/
         dup2(fd, STDOUT_FILENO);
-
-
         /*运行CGI项目*/
         execve(filename, emptylist, NULL);
         exit(0);
@@ -195,10 +192,12 @@ void service_dynamic_get(int fd,char *filename,char *args,const char *method)
 void service_dynamic_post(int fd,char *filename,char *args,const char *method,int content_len)
 {
     char buf[8192], *emptylist[] = {NULL};
-    char meth_env[255];
+//    char meth_env[255];
     char content_length_env[255];
     char postdatac;
+    char data[8192];
     int pfd[2];
+    int i;
 
     if(strcasecmp(method, "POST")) {
         error_request(fd, filename, "501",
@@ -216,53 +215,35 @@ void service_dynamic_post(int fd,char *filename,char *args,const char *method,in
     rio_writen(fd, buf, strlen(buf));
     sprintf(buf, "Server:Web Server\r\n");
     rio_writen(fd, buf, strlen(buf));
+    printf("%s\n",filename);
 
-    /*设置POST--content_length环境变量*/
-    sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
-    putenv(content_length_env);
+//    read_requesthdrs(&rio);
+
+//    /*设置POST--content_length环境变量*/
+//    sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
+//    putenv(content_length_env);
 
     pipe(pfd);
     /*子进程处理*/
     if(fork() == 0) {
-
         close(pfd[1]);
         dup2(pfd[0], STDIN_FILENO);
         /*重定向标准输出到客户端*/
         dup2(fd, STDOUT_FILENO);
         /*运行CGI项目*/
         execve(filename, emptylist, NULL);
-        exit(0);
     }
     /*父进程处理*/
     else
     {
         close(pfd[0]);
-        for(i = 0; i < content_len; i++) {
-            recv(fd, &postdatac, 1, 0);
-            write(pfd[1],&postdatac,1);
-        }
-        //write(pfd[1], args, strlen(args)+1);
-        /*父进程等待cgi子进程结束并回收*/
+        recv(fd, data, content_len, 0);
+        /*把 POST 数据写入 cgi_input，现在重定向到 STDIN */
+        write(pfd[1], data, strlen(data));
         wait(NULL);
         close(pfd[1]);
     }
 
-
-    //        sprintf(meth_env,"REQUEST_METHOD=%s",query_string_env);
-    //        putenv(meth_env);
-
-    //        /*设置GET--query_string环境变量*/
-    //        if(strcasecmp(method, "GET") == 0) {
-    //            sprintf(query_string_env, "QUERY_STRING=%s", args);
-    //            putenv(query_string_env);
-    //        }
-
-
-    //        if(strcasecmp(method, "POST") == 0) {
-
-    //        }
-    //        else {
-    //        }
 }
 
 void http_trans(int fd)
@@ -285,6 +266,7 @@ void http_trans(int fd)
         return ;
     }
     content_len = read_requesthdrs(&rio);
+    //read_requesthdrs(&rio);
     printf("%d\n",content_len);
 
     /*判断请求的是静态页面还是动态页面*/
@@ -326,6 +308,10 @@ void http_trans(int fd)
         }
         if(strcasecmp(method, "GET") == 0) {
             service_dynamic_get(fd, filename, cgiargs,method);
+        }
+        else
+        {
+            service_dynamic_post(fd, filename, cgiargs,method,content_len);
         }
     }
 }
