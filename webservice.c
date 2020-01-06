@@ -28,7 +28,7 @@ void service_static(int fd,char *filename,int filesize);
 //服务GET动态内容
 void service_dynamic_get(int fd,char *filename,char *args,const char *method);
 //服务POST动态内容
-void service_dynamic_post(int fd,char *filename,char *args,const char *method);
+void service_dynamic_post(int fd,char *filename,char *args,const char *method,int content_len);
 //处理错误请求，返回错误提示页面
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 //判断静态请求文件的类型
@@ -36,7 +36,7 @@ void getfiletype(char *filename,char *filetype);
 //服务客户端
 void *serve_cilent(void *vargp);
 //读出请求头
-void read_requesthdrs(rio_t *rp);
+int read_requesthdrs(rio_t *rp);
 
 
 int main(int argc,char *argv[])
@@ -61,16 +61,19 @@ int main(int argc,char *argv[])
 	return 0;
 }
 
-void read_requesthdrs(rio_t *rp)
+int read_requesthdrs(rio_t *rp)
 {
     char buf[8192];
-
+    int content_len = -1;
     rio_readlineb(rp, buf, 8192);
     while(strcmp(buf, "\r\n")) {
-            printf("%s", buf);
-            rio_readlineb(rp, buf, 8192);
+        printf("%s", buf);
+        if(strstr(buf, "Content-Length:")) {
+            content_len = atoi(&buf[16]);
+        }
+        rio_readlineb(rp, buf, 8192);
     }
-    return;
+    return content_len;
 }
 
 int open_listen_sock(int port)
@@ -105,7 +108,7 @@ int is_static(char *uri)
 
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description)
 {
-     char buf[1024],body[1024];
+    char buf[1024],body[1024];
      //构建http响应
     sprintf(body,"<html><title>error request</title>");
     sprintf(body,"%s<body>\r\n",body);
@@ -151,7 +154,12 @@ void service_dynamic_get(int fd,char *filename,char *args,const char *method)
 {
     char buf[8192], *emptylist[] = {NULL};
     int pfd[2];
-    int i;
+
+    if(strcasecmp(method, "GET")) {
+        error_request(fd, filename, "501",
+            "Error Implemented", "webserver does not implement this method");
+        return ;
+    }
 
     /*返回http响应头部*/
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
@@ -184,29 +192,61 @@ void service_dynamic_get(int fd,char *filename,char *args,const char *method)
     }
 }
 
-void service_dynamic_post(int fd,char *filename,char *args,const char *method)
+void service_dynamic_post(int fd,char *filename,char *args,const char *method,int content_len)
 {
+    char buf[8192], *emptylist[] = {NULL};
+    char meth_env[255];
+    char content_length_env[255];
+    char postdatac;
+    int pfd[2];
 
+    if(strcasecmp(method, "POST")) {
+        error_request(fd, filename, "501",
+            "Error Implemented", "webserver does not implement this method");
+        return ;
+    }
+    if(content_len == -1) {
+        error_request(fd, filename, "400",
+            "No content_length", "http header has not content_Length");
+        return ;
+    }
 
-    //    else {  /*POST*/
-    //        rio_readinitb(&rio, fd);
-    //        charnums = rio_readlineb(&rio, buf, 8192);
-    //        while(charnums > 0 && strcmp("\n", buf))
-    //        {
-    //            buf[15] = '\0';
-    //            if(strcasecmp(buf, "Content-Length:") == 0) {
-    //                content_len = atoi(&buf[16]);
-    //            }
-    //            charnums = rio_readlineb(&rio, buf, 8192);
-    //        }
-    //        if(content_len == -1) {
-    //            return ;
-    //        }
-    //    }
+    /*返回http响应头部*/
+    sprintf(buf, "HTTP/1.0 200 OK\r\n");
+    rio_writen(fd, buf, strlen(buf));
+    sprintf(buf, "Server:Web Server\r\n");
+    rio_writen(fd, buf, strlen(buf));
 
-    //        char meth_env[255];
-    //        char query_string_env[255];
-    //        char content_length_env[255];
+    /*设置POST--content_length环境变量*/
+    sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
+    putenv(content_length_env);
+
+    pipe(pfd);
+    /*子进程处理*/
+    if(fork() == 0) {
+
+        close(pfd[1]);
+        dup2(pfd[0], STDIN_FILENO);
+        /*重定向标准输出到客户端*/
+        dup2(fd, STDOUT_FILENO);
+        /*运行CGI项目*/
+        execve(filename, emptylist, NULL);
+        exit(0);
+    }
+    /*父进程处理*/
+    else
+    {
+        close(pfd[0]);
+        for(i = 0; i < content_len; i++) {
+            recv(fd, &postdatac, 1, 0);
+            write(pfd[1],&postdatac,1);
+        }
+        //write(pfd[1], args, strlen(args)+1);
+        /*父进程等待cgi子进程结束并回收*/
+        wait(NULL);
+        close(pfd[1]);
+    }
+
 
     //        sprintf(meth_env,"REQUEST_METHOD=%s",query_string_env);
     //        putenv(meth_env);
@@ -216,17 +256,10 @@ void service_dynamic_post(int fd,char *filename,char *args,const char *method)
     //            sprintf(query_string_env, "QUERY_STRING=%s", args);
     //            putenv(query_string_env);
     //        }
-    //        /*设置POST--content_length环境变量*/
-    //        else {
-    //            sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
-    //            putenv(content_length_env);
-    //        }
+
 
     //        if(strcasecmp(method, "POST") == 0) {
-    //            for(i = 0; i < content_len; i++) {
-    //                recv(fd, &postdatac, 1, 0);
-    //                write(pfd[1],&postdatac,1);
-    //            }
+
     //        }
     //        else {
     //        }
@@ -237,6 +270,7 @@ void http_trans(int fd)
     int static_flag;
     struct stat sbuf;
     char buf[8192], method[8192], uri[8192], version[8192];
+    int content_len = -1;
     char filename[8192], cgiargs[8192];
     rio_t rio;
 
@@ -250,7 +284,8 @@ void http_trans(int fd)
         error_request(fd, method, "501", "Not Implemented", "webserver does not implement this method");
         return ;
     }
-    //read_requesthdrs(&rio);
+    content_len = read_requesthdrs(&rio);
+    printf("%d\n",content_len);
 
     /*判断请求的是静态页面还是动态页面*/
     static_flag = is_static(uri);
