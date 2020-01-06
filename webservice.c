@@ -197,10 +197,10 @@ void http_trans(int fd)
     /*判断请求的是静态页面还是动态页面*/
     static_flag = is_static(uri);
 
-    /*判断是POST提交则将static_flag修改为0
-    if(strcasecmp(method, "POST")) {
+    /*判断是POST提交则将static_flag修改为0*/
+    if(strcasecmp(method, "POST") == 0) {
         static_flag = 0;
-    }*/
+    }
 
     /*分析是否有所请求的页面*/
     if(static_flag)
