@@ -26,7 +26,7 @@ void analyze_dynamic_uri(char *uri,char *filename,char *args);
 //服务静态内容
 void service_static(int fd,char *filename,int filesize);
 //服务动态内容
-void service_dynamic(int fd,char *filename,char *args);
+void service_dynamic(int fd,char *filename,char *args,const char *method);
 //处理错误请求，返回错误提示页面
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 //判断静态请求文件的类型
@@ -143,7 +143,7 @@ void analyze_dynamic_uri(char *uri,char *filename,char *args)
     strcat(filename, uri);
 }
 
-void service_dynamic(int fd,char *filename,char *args)
+void service_dynamic(int fd,char *filename,char *args,const char *method)
 {
     char buf[8192], *emptylist[] = {NULL};
     int pfd[2];
@@ -231,7 +231,7 @@ void http_trans(int fd)
                           "webserver could not run the CGI program");
             return ;
         }
-        service_dynamic(fd, filename, cgiargs);
+        service_dynamic(fd, filename, cgiargs,method);
     }
 }
 
