@@ -192,7 +192,7 @@ void http_trans(int fd)
         error_request(fd, method, "501", "Not Implemented", "webserver does not implement this method");
         return ;
     }
-    read_requesthdrs(&rio);
+    //read_requesthdrs(&rio);
 
     /*判断请求的是静态页面还是动态页面*/
     static_flag = is_static(uri);
