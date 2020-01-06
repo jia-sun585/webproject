@@ -147,12 +147,32 @@ void service_dynamic(int fd,char *filename,char *args,const char *method)
 {
     char buf[8192], *emptylist[] = {NULL};
     int pfd[2];
+    int charnums;
+    int content_len = -1;
+    rio_t rio;
 
-    /*返回http响应头部*/
-    sprintf(buf, "HTTP/1.0 200 OK\r\n");
-    rio_writen(fd, buf, strlen(buf));
-    sprintf(buf, "Server:Web Server\r\n");
-    rio_writen(fd, buf, strlen(buf));
+    if(strcasecmp(method, "GET") == 0) {
+        /*返回http响应头部*/
+        sprintf(buf, "HTTP/1.0 200 OK\r\n");
+        rio_writen(fd, buf, strlen(buf));
+        sprintf(buf, "Server:Web Server\r\n");
+        rio_writen(fd, buf, strlen(buf));
+    }
+    else {  /*POST*/
+        rio_readinitb(&rio, fd);
+        charnums = rio_readlineb(&rio, buf, 8192);
+        while(charnums > 0 && strcmp("\n", buf))
+        {
+            buf[15] = '\0';
+            if(strcasecmp(buf, "Content-Length:") == 0) {
+                content_len = atoi(&buf[16]);
+            }
+            charnums = rio_readlineb(&rio, buf, 8192);
+        }
+        if(content_len == -1) {
+            return ;
+        }
+    }
 
     pipe(pfd);
     /*子进程处理*/
