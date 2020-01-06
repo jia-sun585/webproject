@@ -25,8 +25,10 @@ void analyze_static_uri(char *uri,char *filename);
 void analyze_dynamic_uri(char *uri,char *filename,char *args);
 //服务静态内容
 void service_static(int fd,char *filename,int filesize);
-//服务动态内容
-void service_dynamic(int fd,char *filename,char *args,const char *method);
+//服务GET动态内容
+void service_dynamic_get(int fd,char *filename,char *args,const char *method);
+//服务POST动态内容
+void service_dynamic_post(int fd,char *filename,char *args,const char *method);
 //处理错误请求，返回错误提示页面
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 //判断静态请求文件的类型
@@ -35,6 +37,8 @@ void getfiletype(char *filename,char *filetype);
 void *serve_cilent(void *vargp);
 //读出请求头
 void read_requesthdrs(rio_t *rp);
+
+
 int main(int argc,char *argv[])
 {
     int listen_sock,*conn_sock,port,clientlen;
@@ -143,7 +147,7 @@ void analyze_dynamic_uri(char *uri,char *filename,char *args)
     strcat(filename, uri);
 }
 
-void service_dynamic(int fd,char *filename,char *args,const char *method)
+void service_dynamic_get(int fd,char *filename,char *args,const char *method)
 {
     char buf[8192], *emptylist[] = {NULL};
     int pfd[2];
@@ -225,6 +229,10 @@ void service_dynamic(int fd,char *filename,char *args,const char *method)
     }
 }
 
+void service_dynamic_post(int fd,char *filename,char *args,const char *method)
+{
+
+}
 
 void http_trans(int fd)
 {
