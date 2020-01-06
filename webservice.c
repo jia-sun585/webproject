@@ -235,10 +235,10 @@ void service_dynamic_post(int fd,char *filename,char *args,const char *method,in
     else
     {
         close(pfd[0]);
-        //recv(fd, data, content_len, 0);
+        recv(fd, data, content_len, 0);
         /*把 POST 数据写入 cgi_input，现在重定向到 STDIN */
-        //write(pfd[1], data, strlen(data));
-        write(pfd[1], args, strlen(args)+1);
+        write(pfd[1], data, strlen(data)+1);
+        //write(pfd[1], args, strlen(args)+1);
         wait(NULL);
         close(pfd[1]);
     }
