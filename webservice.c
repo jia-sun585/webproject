@@ -59,12 +59,12 @@ int main(int argc,char *argv[])
 
 void read_requesthdrs(rio_t *rp)
 {
-    char buf[MAXLINE];
+    char buf[8192];
 
-    rio_readlineb(rp, buf, MAXLINE);
+    rio_readlineb(rp, buf, 8192);
     while(strcmp(buf, "\r\n")) {
             printf("%s", buf);
-            rio_readlineb(rp, buf, MAXLINE);
+            rio_readlineb(rp, buf, 8192);
     }
     return;
 }
