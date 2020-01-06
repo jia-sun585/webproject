@@ -6,7 +6,9 @@ int main()
     char *buf,*p;
     char content[8192];
     int n1,n2,num,cal;
+
     scanf("n1=%d&cal=%d&n2=%d",&n1,&cal,&n2);
+
     sprintf(content,"<h2>Welcome to the calculation<h2>");
     if(cal==1)
     {

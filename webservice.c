@@ -192,12 +192,8 @@ void service_dynamic_get(int fd,char *filename,char *args,const char *method)
 void service_dynamic_post(int fd,char *filename,char *args,const char *method,int content_len)
 {
     char buf[8192], *emptylist[] = {NULL};
-//    char meth_env[255];
-    char content_length_env[255];
-    char postdatac;
     char data[8192];
     int pfd[2];
-    int i;
 
     if(strcasecmp(method, "POST")) {
         error_request(fd, filename, "501",
@@ -217,10 +213,6 @@ void service_dynamic_post(int fd,char *filename,char *args,const char *method,in
     rio_writen(fd, buf, strlen(buf));
     printf("%s\n",filename);
 
-//    /*设置POST--content_length环境变量*/
-//    sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
-//    putenv(content_length_env);
-
     pipe(pfd);
     /*子进程处理*/
     if(fork() == 0) {
@@ -238,7 +230,6 @@ void service_dynamic_post(int fd,char *filename,char *args,const char *method,in
         recv(fd, data, content_len, 0);
         /*把 POST 数据写入 cgi_input，现在重定向到 STDIN */
         write(pfd[1], data, strlen(data)+1);
-        //write(pfd[1], args, strlen(args)+1);
         wait(NULL);
         close(pfd[1]);
     }
