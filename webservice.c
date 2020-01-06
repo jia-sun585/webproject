@@ -149,6 +149,8 @@ void service_dynamic(int fd,char *filename,char *args,const char *method)
     int pfd[2];
     int charnums;
     int content_len = -1;
+    int i;
+    char postdatac;
     rio_t rio;
 
     if(strcasecmp(method, "GET") == 0) {
@@ -177,20 +179,50 @@ void service_dynamic(int fd,char *filename,char *args,const char *method)
     pipe(pfd);
     /*子进程处理*/
     if(fork() == 0) {
+        char meth_env[255];
+        char query_string_env[255];
+        char content_length_env[255];
+
         close(pfd[1]);
         dup2(pfd[0], STDIN_FILENO);
         /*重定向标准输出到客户端*/
         dup2(fd, STDOUT_FILENO);
+
+        sprintf(meth_env,"REQUEST_METHOD=%s",query_string_env);
+        putenv(meth_env);
+
+        /*设置GET--query_string环境变量*/
+        if(strcasecmp(method, "GET") == 0) {
+            sprintf(query_string_env, "QUERY_STRING=%s", args);
+            putenv(query_string_env);
+        }
+        /*设置POST--content_length环境变量*/
+        else {
+            sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
+            putenv(content_length_env);
+        }
+
         /*运行CGI项目*/
         execve(filename, emptylist, NULL);
+        exit(0);
     }
-
-    close(pfd[0]);
-    write(pfd[1], args, strlen(args)+1);
-    /*父进程等待cgi子进程结束并回收*/
-    wait(NULL);
-    close(pfd[1]);
-
+    /*父进程处理*/
+    else
+    {
+        close(pfd[0]);
+        if(strcasecmp(method, "POST") == 0) {
+            for(i = 0; i < content_len; i++) {
+                recv(fd, &postdatac, 1, 0);
+                write(pfd[1],&postdatac,1);
+            }
+        }
+        else {
+            write(pfd[1], args, strlen(args)+1);
+        }
+        /*父进程等待cgi子进程结束并回收*/
+        wait(NULL);
+        close(pfd[1]);
+    }
 }
 
 
