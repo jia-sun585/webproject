@@ -75,62 +75,62 @@ void read_requesthdrs(rio_t *rp)
 
 int open_listen_sock(int port)
 {
-int listen_sock,optval=1;
-struct sockaddr_in serveraddr;
-//创建套接字
-if((listen_sock=socket(AF_INET,SOCK_STREAM,0))<0)
-    return -1;
-if(setsockopt(listen_sock,SOL_SOCKET,SO_REUSEADDR,(const void*)&optval,sizeof(int))<0)
-    return -1;
-//初始化服务器套接字的地址结构
-bzero((char*)&serveraddr,sizeof(serveraddr));
-serveraddr.sin_family=AF_INET;
-serveraddr.sin_addr.s_addr=htonl(INADDR_ANY);
-serveraddr.sin_port=htons((unsigned short)port);
-//绑定套接字
-if(bind(listen_sock,(SA *)&serveraddr,sizeof(serveraddr))<0)
-    return -1;
-//监听套接字
-if(listen(listen_sock,LISTENQ)<0)
-    return -1;
-return listen_sock;
+    int listen_sock,optval=1;
+    struct sockaddr_in serveraddr;
+    //创建套接字
+    if((listen_sock=socket(AF_INET,SOCK_STREAM,0))<0)
+        return -1;
+    if(setsockopt(listen_sock,SOL_SOCKET,SO_REUSEADDR,(const void*)&optval,sizeof(int))<0)
+        return -1;
+    //初始化服务器套接字的地址结构
+    bzero((char*)&serveraddr,sizeof(serveraddr));
+    serveraddr.sin_family=AF_INET;
+    serveraddr.sin_addr.s_addr=htonl(INADDR_ANY);
+    serveraddr.sin_port=htons((unsigned short)port);
+    //绑定套接字
+    if(bind(listen_sock,(SA *)&serveraddr,sizeof(serveraddr))<0)
+        return -1;
+    //监听套接字
+    if(listen(listen_sock,LISTENQ)<0)
+        return -1;
+    return listen_sock;
 }
 
 int is_static(char *uri)
 {
-if(!strstr(uri,"cgi-bin"))
-    return 1;
-else return 0;
+    if(!strstr(uri,"cgi-bin"))
+        return 1;
+    else return 0;
 }
 
 void error_request(int fd,char *cause,char *errnum,char *cue,char *description)
 {
- char buf[1024],body[1024];
- //构建http响应
-sprintf(body,"<html><title>error request</title>");
-sprintf(body,"%s<body>\r\n",body);
-sprintf(body,"%s%s:%s\r\n",body,errnum,cue);
-sprintf(body,"%s<p>%s: %s\r\n",body,description,cause);
-sprintf(body,"%s<hr><em>Web server</em>\r\n",body);
-//发送响应
-sprintf(buf,"HTTP/1.0%s%s\r\n",errnum,cue);
-rio_writen(fd,buf,strlen(buf));
-sprintf(buf,"Content-type:text/html\r\n");
-rio_writen(fd,buf,strlen(buf));
-sprintf(buf,"Content-length:%d\r\n\r\n",(int)strlen(body));
-rio_writen(fd,buf,strlen(buf));
-rio_writen(fd,body,strlen(body));
+     char buf[1024],body[1024];
+     //构建http响应
+    sprintf(body,"<html><title>error request</title>");
+    sprintf(body,"%s<body>\r\n",body);
+    sprintf(body,"%s%s:%s\r\n",body,errnum,cue);
+    sprintf(body,"%s<p>%s: %s\r\n",body,description,cause);
+    sprintf(body,"%s<hr><em>Web server</em>\r\n",body);
+    //发送响应
+    sprintf(buf,"HTTP/1.0%s%s\r\n",errnum,cue);
+    rio_writen(fd,buf,strlen(buf));
+    sprintf(buf,"Content-type:text/html\r\n");
+    rio_writen(fd,buf,strlen(buf));
+    sprintf(buf,"Content-length:%d\r\n\r\n",(int)strlen(body));
+    rio_writen(fd,buf,strlen(buf));
+    rio_writen(fd,body,strlen(body));
 }
 
 void getfiletype(char *filename,char *filetype)
 {
-if(strstr(filename,".html"))
-    strcpy(filetype,"text/html");
-else if(strstr(filename,".jpg"))
-    strcpy(filetype,"image/jpeg");
-else if(strstr(filename,".mpeg"))
-    strcpy(filetype,"video/mpeg");
-else strcpy(filetype,"text/html");
+    if(strstr(filename,".html"))
+        strcpy(filetype,"text/html");
+    else if(strstr(filename,".jpg"))
+        strcpy(filetype,"image/jpeg");
+    else if(strstr(filename,".mpeg"))
+        strcpy(filetype,"video/mpeg");
+    else strcpy(filetype,"text/html");
 }
 
 void analyze_dynamic_uri(char *uri,char *filename,char *args)
@@ -151,60 +151,23 @@ void service_dynamic_get(int fd,char *filename,char *args,const char *method)
 {
     char buf[8192], *emptylist[] = {NULL};
     int pfd[2];
-    int charnums;
-    int content_len = -1;
     int i;
-    char postdatac;
-    rio_t rio;
 
-    if(strcasecmp(method, "GET") == 0) {
-        /*返回http响应头部*/
-        sprintf(buf, "HTTP/1.0 200 OK\r\n");
-        rio_writen(fd, buf, strlen(buf));
-        sprintf(buf, "Server:Web Server\r\n");
-        rio_writen(fd, buf, strlen(buf));
-    }
-    else {  /*POST*/
-        rio_readinitb(&rio, fd);
-        charnums = rio_readlineb(&rio, buf, 8192);
-        while(charnums > 0 && strcmp("\n", buf))
-        {
-            buf[15] = '\0';
-            if(strcasecmp(buf, "Content-Length:") == 0) {
-                content_len = atoi(&buf[16]);
-            }
-            charnums = rio_readlineb(&rio, buf, 8192);
-        }
-        if(content_len == -1) {
-            return ;
-        }
-    }
+    /*返回http响应头部*/
+    sprintf(buf, "HTTP/1.0 200 OK\r\n");
+    rio_writen(fd, buf, strlen(buf));
+    sprintf(buf, "Server:Web Server\r\n");
+    rio_writen(fd, buf, strlen(buf));
 
     pipe(pfd);
     /*子进程处理*/
     if(fork() == 0) {
-        char meth_env[255];
-        char query_string_env[255];
-        char content_length_env[255];
 
         close(pfd[1]);
         dup2(pfd[0], STDIN_FILENO);
         /*重定向标准输出到客户端*/
         dup2(fd, STDOUT_FILENO);
 
-        sprintf(meth_env,"REQUEST_METHOD=%s",query_string_env);
-        putenv(meth_env);
-
-        /*设置GET--query_string环境变量*/
-        if(strcasecmp(method, "GET") == 0) {
-            sprintf(query_string_env, "QUERY_STRING=%s", args);
-            putenv(query_string_env);
-        }
-        /*设置POST--content_length环境变量*/
-        else {
-            sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
-            putenv(content_length_env);
-        }
 
         /*运行CGI项目*/
         execve(filename, emptylist, NULL);
@@ -214,15 +177,7 @@ void service_dynamic_get(int fd,char *filename,char *args,const char *method)
     else
     {
         close(pfd[0]);
-        if(strcasecmp(method, "POST") == 0) {
-            for(i = 0; i < content_len; i++) {
-                recv(fd, &postdatac, 1, 0);
-                write(pfd[1],&postdatac,1);
-            }
-        }
-        else {
-            write(pfd[1], args, strlen(args)+1);
-        }
+        write(pfd[1], args, strlen(args)+1);
         /*父进程等待cgi子进程结束并回收*/
         wait(NULL);
         close(pfd[1]);
@@ -232,6 +187,49 @@ void service_dynamic_get(int fd,char *filename,char *args,const char *method)
 void service_dynamic_post(int fd,char *filename,char *args,const char *method)
 {
 
+
+    //    else {  /*POST*/
+    //        rio_readinitb(&rio, fd);
+    //        charnums = rio_readlineb(&rio, buf, 8192);
+    //        while(charnums > 0 && strcmp("\n", buf))
+    //        {
+    //            buf[15] = '\0';
+    //            if(strcasecmp(buf, "Content-Length:") == 0) {
+    //                content_len = atoi(&buf[16]);
+    //            }
+    //            charnums = rio_readlineb(&rio, buf, 8192);
+    //        }
+    //        if(content_len == -1) {
+    //            return ;
+    //        }
+    //    }
+
+    //        char meth_env[255];
+    //        char query_string_env[255];
+    //        char content_length_env[255];
+
+    //        sprintf(meth_env,"REQUEST_METHOD=%s",query_string_env);
+    //        putenv(meth_env);
+
+    //        /*设置GET--query_string环境变量*/
+    //        if(strcasecmp(method, "GET") == 0) {
+    //            sprintf(query_string_env, "QUERY_STRING=%s", args);
+    //            putenv(query_string_env);
+    //        }
+    //        /*设置POST--content_length环境变量*/
+    //        else {
+    //            sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
+    //            putenv(content_length_env);
+    //        }
+
+    //        if(strcasecmp(method, "POST") == 0) {
+    //            for(i = 0; i < content_len; i++) {
+    //                recv(fd, &postdatac, 1, 0);
+    //                write(pfd[1],&postdatac,1);
+    //            }
+    //        }
+    //        else {
+    //        }
 }
 
 void http_trans(int fd)
@@ -291,7 +289,9 @@ void http_trans(int fd)
                           "webserver could not run the CGI program");
             return ;
         }
-        service_dynamic(fd, filename, cgiargs,method);
+        if(strcasecmp(method, "GET") == 0) {
+            service_dynamic_get(fd, filename, cgiargs,method);
+        }
     }
 }
 
@@ -304,6 +304,7 @@ void analyze_static_uri(char *uri,char *filename)
     if(uri[strlen(uri)-1]=='/')
         strcat(filename,"index.html");
 }
+
 void service_static(int fd,char *filename,int filesize)
 {
     int srcfd;
@@ -322,9 +323,9 @@ void service_static(int fd,char *filename,int filesize)
     rio_writen(fd,srcp,filesize);
     munmap(srcp,filesize);
 
-
-
 }
+
+
 void *serve_cilent(void *vargp)
 {
     int conn_sock=*((int *)vargp);
