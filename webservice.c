@@ -217,8 +217,6 @@ void service_dynamic_post(int fd,char *filename,char *args,const char *method,in
     rio_writen(fd, buf, strlen(buf));
     printf("%s\n",filename);
 
-//    read_requesthdrs(&rio);
-
 //    /*设置POST--content_length环境变量*/
 //    sprintf(content_length_env, "CONTENT_LENGTH=%d", content_len);
 //    putenv(content_length_env);
@@ -237,9 +235,10 @@ void service_dynamic_post(int fd,char *filename,char *args,const char *method,in
     else
     {
         close(pfd[0]);
-        recv(fd, data, content_len, 0);
+        //recv(fd, data, content_len, 0);
         /*把 POST 数据写入 cgi_input，现在重定向到 STDIN */
-        write(pfd[1], data, strlen(data));
+        //write(pfd[1], data, strlen(data));
+        write(pfd[1], args, strlen(args)+1);
         wait(NULL);
         close(pfd[1]);
     }
