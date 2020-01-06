@@ -33,6 +33,8 @@ void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
 void getfiletype(char *filename,char *filetype);
 //服务客户端
 void *serve_cilent(void *vargp);
+//读出请求头
+void read_requesthdrs(rio_t *rp);
 int main(int argc,char *argv[])
 {
     int listen_sock,*conn_sock,port,clientlen;
@@ -53,6 +55,18 @@ int main(int argc,char *argv[])
         pthread_create(&tid,NULL,serve_cilent,conn_sock);
     }
 	return 0;
+}
+
+void read_requesthdrs(rio_t *rp)
+{
+    char buf[MAXLINE];
+
+    rio_readlineb(rp, buf, MAXLINE);
+    while(strcmp(buf, "\r\n")) {
+            printf("%s", buf);
+            rio_readlineb(rp, buf, MAXLINE);
+    }
+    return;
 }
 
 int open_listen_sock(int port)
@@ -178,6 +192,7 @@ void http_trans(int fd)
         error_request(fd, method, "501", "Not Implemented", "webserver does not implement this method");
         return ;
     }
+    read_requesthdrs(&rio);
 
     /*判断请求的是静态页面还是动态页面*/
     static_flag = is_static(uri);
