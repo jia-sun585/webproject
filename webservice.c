@@ -13,29 +13,29 @@
 #include "rio.h"
 #define LISTENQ  1024
 typedef struct sockaddr SA;
-//open_listen_sock辅助函数，用于监听等待服务端的请求，返回一个监听描述符
+//open_listen_sock辅助函数，用于监听等待客戶端的请求，返回一个监听描述符
 int open_listen_sock(int port);
 //用于http事务处理
 void http_trans(int fd);
+//处理错误请求，返回错误提示页面
+void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
+//创建线程时所调用的函数
+void *serve_cilent(void *vargp);
 //判断该请求是否为静态页面请求
 int is_static(char *uri);
+//判断静态请求文件的类型
+void getfiletype(char *filename,char *filetype);
 //解析静态内容请求uri
 void analyze_static_uri(char *uri,char *filename);
-//解析动态请求uri，第三个参数是请求的参数
-void analyze_dynamic_uri(char *uri,char *filename,char *args);
 //服务静态内容
 void service_static(int fd,char *filename,int filesize);
+//解析动态请求uri，第三个参数是请求的参数
+void analyze_dynamic_uri(char *uri,char *filename,char *args);
 //服务GET动态内容
 void service_dynamic_get(int fd,char *filename,char *args,const char *method);
 //服务POST动态内容
 void service_dynamic_post(int fd,char *filename,char *args,const char *method,int content_len);
-//处理错误请求，返回错误提示页面
-void error_request(int fd,char *cause,char *errnum,char *cue,char *description);
-//判断静态请求文件的类型
-void getfiletype(char *filename,char *filetype);
-//服务客户端
-void *serve_cilent(void *vargp);
-//读出请求头
+//读出请求头，若为post请求将会返回content_length,否则返回0
 int read_requesthdrs(rio_t *rp);
 
 
